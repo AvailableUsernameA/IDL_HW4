@@ -287,7 +287,7 @@ class ASRDataset(Dataset):
 
         # TODO: Collect transposed features from the batch into a list of tensors (B x T x F)
         # Note: Use list comprehension to collect the features from the batch   
-        batch_feats  = [torch.Tensor(item[0]).T for item in batch]
+        batch_feats  = [item[0].T for item in batch]
 
         # TODO: Collect feature lengths from the batch into a tensor
         # Note: Use list comprehension to collect the feature lengths from the batch   
@@ -302,8 +302,8 @@ class ASRDataset(Dataset):
         if self.partition != "test-clean":
             # TODO: Collect shifted and golden transcripts from the batch into a list of tensors (B x T)  
             # Note: Use list comprehension to collect the transcripts from the batch   
-            batch_shifted      = [torch.Tensor(item[1]) for item in batch] # B x T
-            batch_golden       = [torch.Tensor(item[2]) for item in batch] # B x T
+            batch_shifted      = [item[1] for item in batch] # B x T
+            batch_golden       = [item[2] for item in batch] # B x T
 
             # TODO: Collect transcript lengths from the batch into a tensor
             # Note: Use list comprehension to collect the transcript lengths from the batch   
