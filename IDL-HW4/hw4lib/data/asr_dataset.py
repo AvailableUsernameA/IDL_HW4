@@ -330,7 +330,7 @@ class ASRDataset(Dataset):
                     padded_feats = self.time_mask(padded_feats)
             # TODO: Permute the features back to (B x T x F)
             padded_feats = torch.permute(padded_feats, (0, 2, 1)) # B x T x F
-
+            print("debug:", transcript_lengths)
         # TODO: Return the padded features, padded shifted, padded golden, feature lengths, and transcript lengths
         return (padded_feats, padded_shifted, padded_golden, feat_lengths, transcript_lengths)# Remove once implemented
 
