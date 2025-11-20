@@ -170,6 +170,7 @@ class ASRDataset(Dataset):
                 # TODO: Load the transcript
                 # Note: Use np.load to load the numpy array and convert to list and then join to string 
                 transcript = np.load(self.text_files[i])
+                transcript = ' '.join(str(t) for t in transcript)
 
                 # TODO: Track character count (before tokenization)
                 self.total_chars += len(transcript)
