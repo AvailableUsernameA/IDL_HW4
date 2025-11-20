@@ -110,7 +110,7 @@ class ASRDataset(Dataset):
             self.text_files = sorted([os.path.join(self.text_dir, fname) for fname in os.listdir(self.text_dir)])
             
             # TODO: Take subset
-            print(len(self.text_files, self.length))
+            print(len(self.text_files), self.length)
             self.text_files = self.text_files[self.length]
             
             # Verify data alignment
