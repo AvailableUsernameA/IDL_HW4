@@ -232,7 +232,7 @@ class ASRDataset(Dataset):
         DO NOT MODIFY
         """
         # TODO: Implement __len__
-        raise self.length
+        return self.length
 
     def __getitem__(self, idx) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """
