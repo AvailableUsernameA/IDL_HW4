@@ -110,7 +110,7 @@ class ASRDataset(Dataset):
             self.text_files = sorted(os.listdir(self.text_dir))
             
             # TODO: Take subset
-            self.text_files = self.text_files[:self.length]
+            self.text_files = self.text_files[:int(config['subset']*len(self.text_files))]
             
             # Verify data alignment
             if len(self.fbank_files) != len(self.text_files):
