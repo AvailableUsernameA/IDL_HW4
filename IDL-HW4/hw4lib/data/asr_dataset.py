@@ -307,7 +307,7 @@ class ASRDataset(Dataset):
 
             # TODO: Collect transcript lengths from the batch into a tensor
             # Note: Use list comprehension to collect the transcript lengths from the batch   
-            transcript_lengths = torch.Tensor([s.shape[0] for s in batch_shifted]) # B  
+            transcript_lengths = torch.IntTensor([s.shape[0] for s in batch_shifted]) # B  
 
             # TODO: Pad transcripts to create a batch of fixed-length padded transcripts
             # Note: Use torch.nn.utils.rnn.pad_sequence to pad the transcripts (use pad_token as the padding value)
