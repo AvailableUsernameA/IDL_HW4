@@ -332,5 +332,6 @@ class ASRDataset(Dataset):
             padded_feats = padded_feats.permute(0, 2, 1) # B x T x F
 
         # TODO: Return the padded features, padded shifted, padded golden, feature lengths, and transcript lengths
+        print("print", padded_feats.shape, feat_lengths)
         return (padded_feats, padded_shifted, padded_golden, feat_lengths, transcript_lengths)# Remove once implemented
 
