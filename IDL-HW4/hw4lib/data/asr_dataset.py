@@ -266,7 +266,7 @@ class ASRDataset(Dataset):
             shifted_transcript = torch.LongTensor(self.transcripts_shifted[idx])
             golden_transcript  = torch.LongTensor(self.transcripts_golden[idx])
 
-        raise (feat, shifted_transcript, golden_transcript) # Remove once implemented
+        return (feat, shifted_transcript, golden_transcript) # Remove once implemented
 
     def collate_fn(self, batch) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         """
