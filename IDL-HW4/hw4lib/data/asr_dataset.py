@@ -291,7 +291,7 @@ class ASRDataset(Dataset):
 
         # TODO: Collect feature lengths from the batch into a tensor
         # Note: Use list comprehension to collect the feature lengths from the batch   
-        feat_lengths = torch.Tensor([feat.shape[0] for feat in batch_feats])  # B
+        feat_lengths = torch.Tensor([item[0].shape[1] for item in batch])  # B
 
         # TODO: Pad features to create a batch of fixed-length padded features
         # Note: Use torch.nn.utils.rnn.pad_sequence to pad the features (use pad_token as the padding value)
@@ -332,6 +332,5 @@ class ASRDataset(Dataset):
             padded_feats = torch.permute(padded_feats, (0, 2, 1)) # B x T x F
 
         # TODO: Return the padded features, padded shifted, padded golden, feature lengths, and transcript lengths
-        print("print", padded_feats.shape, feat_lengths)
         return (padded_feats, padded_shifted, padded_golden, feat_lengths, transcript_lengths)# Remove once implemented
 

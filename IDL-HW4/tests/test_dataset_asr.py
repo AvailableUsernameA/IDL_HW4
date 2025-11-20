@@ -157,9 +157,6 @@ def test_asr_data_collate_fn(dataset):
         
         # Test for consistent padding in transcripts
         max_transcript_length = torch.max(transcript_lengths)
-        print("debug")
-        print(max_transcript_length)
-        print(batch_shifted_pad.shape)
         assert batch_shifted_pad.shape[1] == max_transcript_length, "Inconsistent transcript padding in batch."
         print("Test Passed: All transcripts are padded to the same length.")
 
