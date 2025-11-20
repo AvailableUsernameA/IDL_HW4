@@ -176,7 +176,6 @@ class ASRDataset(Dataset):
                 self.total_chars += len(transcript)
 
                 # TODO: Use tokenizer to encode the transcript (see tokenizer.encode for details)
-                print(transcript, type(transcript))
                 tokenized = tokenizer.encode(transcript)
 
                 # Track token count (excluding special tokens)
@@ -323,17 +322,12 @@ class ASRDataset(Dataset):
             # TODO: Apply frequency masking
             if self.config["specaug_conf"]["apply_freq_mask"]:
                 for _ in range(self.config["specaug_conf"]["num_freq_mask"]):
-                    # padded_feats = self.freq_mask(padded_feats)
-                    for i in len(padded_feats):
-                        padded_feats[i] = self.freq_mask(padded_feats[i])
+                    padded_feats = self.freq_mask(padded_feats)
 
             # TODO: Apply time masking
             if self.config["specaug_conf"]["apply_time_mask"]:
                 for _ in range(self.config["specaug_conf"]["num_time_mask"]):
-                    # padded_feats = NotImplementedError
-                    for i in len(padded_feats):
-                        padded_feats[i] = self.time_mask(padded_feats[i])
-
+                    padded_feats = self.time_mask(padded_feats)
             # TODO: Permute the features back to (B x T x F)
             padded_feats = padded_feats.permute(0, 2, 1) # B x T x F
 
