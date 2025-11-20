@@ -287,7 +287,7 @@ class ASRDataset(Dataset):
 
         # TODO: Collect transposed features from the batch into a list of tensors (B x T x F)
         # Note: Use list comprehension to collect the features from the batch   
-        batch_feats  = [torch.Tensor(item[0]) for item in batch]
+        batch_feats  = [torch.Tensor(item[0]).T for item in batch]
 
         # TODO: Collect feature lengths from the batch into a tensor
         # Note: Use list comprehension to collect the feature lengths from the batch   
