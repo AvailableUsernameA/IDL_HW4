@@ -44,7 +44,7 @@ def test_asr_data_init(dataset):
 
     # Assert dataset length matches FBANK files
     print("lengths:")
-    # print(len(dataset), len(dataset.fbank_files))
+    print(len(dataset), len(dataset.fbank_files))
     assert len(dataset) == len(dataset.fbank_files), "Dataset length mismatch with FBANK files."
     print("Test Passed: Dataset length matches FBANK files.")
 
