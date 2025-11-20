@@ -317,7 +317,7 @@ class ASRDataset(Dataset):
         # TODO: Apply SpecAugment for training
         if self.config["specaug"] and self.isTrainPartition:
             # TODO: Permute the features to (B x F x T)
-            padded_feats = padded_feats.permute(0, 2, 1) # B x F x T
+            padded_feats = torch.permute(padded_feats, (0, 2, 1)) # B x F x T
 
             # TODO: Apply frequency masking
             if self.config["specaug_conf"]["apply_freq_mask"]:
@@ -329,7 +329,7 @@ class ASRDataset(Dataset):
                 for _ in range(self.config["specaug_conf"]["num_time_mask"]):
                     padded_feats = self.time_mask(padded_feats)
             # TODO: Permute the features back to (B x T x F)
-            padded_feats = padded_feats.permute(0, 2, 1) # B x T x F
+            padded_feats = torch.permute(padded_feats, (0, 2, 1)) # B x T x F
 
         # TODO: Return the padded features, padded shifted, padded golden, feature lengths, and transcript lengths
         print("print", padded_feats.shape, feat_lengths)
