@@ -175,6 +175,7 @@ class ASRDataset(Dataset):
                 self.total_chars += len(transcript)
 
                 # TODO: Use tokenizer to encode the transcript (see tokenizer.encode for details)
+                print(transcript, type(transcript))
                 tokenized = tokenizer.encode(transcript)
 
                 # Track token count (excluding special tokens)
