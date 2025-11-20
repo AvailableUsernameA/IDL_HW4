@@ -110,8 +110,7 @@ class ASRDataset(Dataset):
             self.text_files = sorted([os.path.join(self.text_dir, fname) for fname in os.listdir(self.text_dir)])
             
             # TODO: Take subset
-            print(len(self.text_files), self.length)
-            self.text_files = self.text_files[self.length]
+            self.text_files = self.text_files[:self.length]
             
             # Verify data alignment
             if len(self.fbank_files) != len(self.text_files):
@@ -323,15 +322,15 @@ class ASRDataset(Dataset):
             if self.config["specaug_conf"]["apply_freq_mask"]:
                 for _ in range(self.config["specaug_conf"]["num_freq_mask"]):
                     # padded_feats = self.freq_mask(padded_feats)
-                    for feat in padded_feats:
-                        feat = self.freq_mask(feat)
+                    for i in len(padded_feats):
+                        padded_feats[i] = self.freq_mask(padded_feats[i])
 
             # TODO: Apply time masking
             if self.config["specaug_conf"]["apply_time_mask"]:
                 for _ in range(self.config["specaug_conf"]["num_time_mask"]):
                     # padded_feats = NotImplementedError
-                    for feat in padded_feats:
-                        feat = self.time_mask(feat)
+                    for i in len(padded_feats):
+                        padded_feats[i] = self.time_mask(padded_feats[i])
 
             # TODO: Permute the features back to (B x T x F)
             padded_feats = padded_feats.permute(0, 2, 1) # B x T x F
