@@ -414,8 +414,9 @@ class ASRTrainer(BaseTrainer):
 
                 # TODO: Initialize prompts as a batch of SOS tokens
                 batch_size = feats.size(0)
-                prompts = torch.ones((batch_size, 1))
-                prompts[:, 0] = self.tokenizer.sos_id
+                # prompts = torch.ones((batch_size, 1))
+                # prompts[:, 0] = self.tokenizer.sos_id
+                prompts = torch.full((batch_size, 1), self.tokenizer.sos_id, device=self.device, dtype=torch.long)
 
                 # TODO: Generate sequences
                 if recognition_config['beam_width'] > 1:
