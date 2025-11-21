@@ -127,8 +127,7 @@ class ASRTrainer(BaseTrainer):
                     loss = ce_loss + self.ctc_weight * ctc_loss
                 else:
                     ctc_loss = torch.tensor(0.0)
-                    loss = ce_loss(ctc_inputs['log_probs'], targets_golden, ctc_inputs['lengths'], transcript_lengths)
-
+                    loss = ce_loss
             # Calculate metrics
             batch_tokens = transcript_lengths.sum().item()
             total_tokens += batch_tokens
