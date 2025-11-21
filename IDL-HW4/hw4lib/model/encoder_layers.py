@@ -63,6 +63,7 @@ class SelfAttentionEncoderLayer(nn.Module):
         # TODO: Implement forward: Follow the figure in the writeup
 
         # What will be different from decoder self-attention layer?
+        print(key_padding_mask.shape)
         x, mha_attn_weights = self.self_attn(x=x, key_padding_mask=key_padding_mask)
         x = self.ffn(x)
         
