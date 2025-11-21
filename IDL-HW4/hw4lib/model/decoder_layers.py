@@ -116,8 +116,8 @@ class CrossAttentionDecoderLayer(nn.Module):
         # TODO: Implement forward: Follow the figure in the writeup
 
         x, self_attn_weights  = self.self_attn.forward(x=x, key_padding_mask=dec_key_padding_mask, attn_mask=attn_mask)
-        x  = self.ffn.forward(x)
         x, cross_attn_weights = self.cross_attn.forward(x=x, y=enc_output, key_padding_mask=enc_key_padding_mask, attn_mask=attn_mask)
+        x  = self.ffn.forward(x)
 
         # TODO: Return the output tensor and attention weights    
         return x, self_attn_weights, cross_attn_weights # Remove once implemented

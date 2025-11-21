@@ -71,7 +71,7 @@ class SelfAttentionLayer(nn.Module):
         # Set need_weights to True and average_attn_weights to True so we can get the attention weights 
         residual = x
         norm_x = self.norm(x) 
-        x, mha_attn_weights = self.mha(query=norm_x, key=norm_x, value=norm_x, key_padding_mask=key_padding_mask, attn_mask=attn_mask, need_weights=True)
+        x, mha_attn_weights = self.mha(query=norm_x, key=norm_x, value=norm_x, key_padding_mask=key_padding_mask, attn_mask=attn_mask, need_weights=True, average_attn_weights=True)
         x = self.dropout(x)
         x = residual + x
         
