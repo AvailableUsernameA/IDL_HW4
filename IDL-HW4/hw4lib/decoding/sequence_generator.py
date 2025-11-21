@@ -177,12 +177,10 @@ class SequenceGenerator:
             # Get logits and apply filtering
             next_scores = self.score_fn(x) # (batch_size, vocab_size)
             filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
-            log_probs = torch.log_softmax(filtered_logits, dim=-1)
             
             # We need probabilities for multinomial sampling
-            probs = torch.exp(log_probs)
-            next_tokens = torch.multinomial(probs, num_samples=1).squeeze(-1) # (batch_size,)
-            token_scores = log_probs.gather(1, next_tokens.unsqueeze(1)).squeeze(1) # (batch_size,)
+            next_tokens = filtered_logits.argmax(dim=-1)
+            token_scores = filtered_logits.gather(1, next_tokens.unsqueeze(1)).squeeze(1) # (batch_size,)
 
             # Update scores only for unfinished sequences
             scores = torch.where(finished, scores, scores + token_scores)
