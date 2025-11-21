@@ -352,13 +352,13 @@ class EncoderDecoderTransformer(nn.Module):
             if self.training and self.layer_drop_rate > 0 and random.random() < self.layer_drop_rate:
                 continue
             # TODO: Pass through encoder layer
-            x_enc, attention = self.enc_layers[i].forward(x_enc, pad_mask_src)
+            x_enc, attention = self.enc_layers[i](x_enc, pad_mask_src)
             
             # Save attention weights
             running_att[f'layer{i+1}_enc_self'] = attention
 
         # TODO: Apply normalization
-        x_enc = self.encoder_norm.forward(x_enc)
+        x_enc = self.encoder_norm(x_enc)
         # TODO: Project to CTC logits
         ctc_logits = {'log_probs':self.ctc_head(x_enc).permute(1, 0, 2), 'lengths':x_enc_lengths}
 
@@ -398,12 +398,12 @@ class EncoderDecoderTransformer(nn.Module):
         causal_mask = CausalMask(padded_targets)
 
         # TODO: Apply the embedding, positional encoding, and dropout
-        x_dec = self.target_embedding.forward(padded_targets)
+        x_dec = self.target_embedding(padded_targets)
 
         # TODO: Apply positional encoding if not skipped
         # Shouldn't really be doing this. Included for completeness.  
         if not self.skip_decoder_pe:
-            x_dec = self.positional_encoding.forward(x_dec)
+            x_dec = self.positional_encoding(x_dec)
 
         # TODO: Apply dropout
         x_dec = self.dropout(x_dec)
@@ -414,7 +414,7 @@ class EncoderDecoderTransformer(nn.Module):
             if self.training and self.layer_drop_rate > 0 and random.random() < self.layer_drop_rate:
                 continue
             # TODO: Pass through decoder layer
-            x_dec, self_attn, cross_attn = self.dec_layers[i].forward(x_dec, encoder_output, pad_mask_tgt, pad_mask_src, causal_mask)
+            x_dec, self_attn, cross_attn = self.dec_layers[i](x_dec, encoder_output, pad_mask_tgt, pad_mask_src, causal_mask)
             
             # TODO: Save attention weights
             running_att[f'layer{i+1}_dec_self'] = self_attn
