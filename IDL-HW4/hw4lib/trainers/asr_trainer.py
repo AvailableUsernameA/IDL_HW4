@@ -62,8 +62,9 @@ class ASRTrainer(BaseTrainer):
         # TODO: Initialize CE loss
         # How would you set the ignore_index? 
         # Use value in config to set the label_smoothing argument
+        print(config)
         # self.ce_criterion = nn.CrossEntropyLoss(weight=config['loss']['ctc_weight'], ignore_index=tokenizer.pad_id, label_smoothing=config['label_smoothing'])
-        self.ce_criterion = nn.CrossEntropyLoss(weight=None, ignore_index=tokenizer.pad_id, label_smoothing=config['label_smoothing'])
+        self.ce_criterion = nn.CrossEntropyLoss(weight=None, ignore_index=tokenizer.pad_id, label_smoothing=config['loss']['label_smoothing'])
         
         # TODO: Initialize CTC loss if needed
         # You can use the pad token id as the blank index
@@ -117,7 +118,7 @@ class ASRTrainer(BaseTrainer):
                 
                 # TODO: Calculate CTC loss if needed
                 if self.ctc_weight > 0:
-                    ctc_loss = self.ctc_criterion()
+                    ctc_loss = self.ctc_criterion(ctc_inputs['log_probs'], targets_golden, ctc_inputs['lengths'], transcript_lengths)
                     loss = ce_loss + self.ctc_weight * ctc_loss
                 else:
                     ctc_loss = torch.tensor(0.0)
@@ -135,7 +136,7 @@ class ASRTrainer(BaseTrainer):
             loss = loss / self.config['training']['gradient_accumulation_steps']
 
             # TODO: Backpropagate the loss
-            self.scaler = torch.cuda.amp.GradScaler()
+            self.scaler = torch.amp.GradScaler()
 
             # Only update weights after accumulating enough gradients
             if (i + 1) % self.config['training']['gradient_accumulation_steps'] == 0:
