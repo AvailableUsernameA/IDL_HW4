@@ -270,48 +270,47 @@ class EncoderDecoderTransformer(nn.Module):
 
         # TODO: Create encoder layers
         # Use ModuleList to create a list of encoder layers
-        self.enc_layers = NotImplementedError # ModuleList of encoder layers
+        self.enc_layers = nn.ModuleList([SelfAttentionEncoderLayer(d_model, num_encoder_heads, d_ff_encoder, dropout) for _ in range(num_encoder_layers)]) # ModuleList of encoder layers
 
         # TODO: Create decoder layers
         # Use ModuleList to create a list of decoder layers
-        self.dec_layers = NotImplementedError # ModuleList of decoder layers
+        self.dec_layers = nn.ModuleList([SelfAttentionDecoderLayer(d_model, num_decoder_heads, d_ff_decoder, dropout) for _ in range(num_decoder_layers)]) # ModuleList of decoder layers
 
         # TODO: Create source and target embeddings and other layers
         # Use SpeechEmbedding class to create the source embedding
-        self.source_embedding = NotImplementedError # Speech embedding
+        self.source_embedding = SpeechEmbedding(input_dim, d_model, time_reduction, reduction_method, dropout) # Speech embedding
 
 
         # TODO: Create the target embedding
         # Use nn.Embedding class to create the target embedding
-        self.target_embedding    = NotImplementedError # Target embedding
+        self.target_embedding    = nn.Embedding(num_classes, d_model) # Target embedding
 
         # TODO: Create the positional encoding layer
-        self.positional_encoding = NotImplementedError # Positional encoding
+        self.positional_encoding = PositionalEncoding(d_model, max_len) # Positional encoding
 
         # TODO: Create the final linear layer
-        self.final_linear        = NotImplementedError # Final linear layer
+        self.final_linear        = nn.Linear(d_model, num_classes) # Final linear layer
 
         # TODO: Create the dropout layer
-        self.dropout             = NotImplementedError # Dropout
+        self.dropout             = nn.Dropout(dropout) # Dropout
 
         # TODO: Create the encoder normalization layer
-        self.encoder_norm        = NotImplementedError # Encoder normalization
+        self.encoder_norm        = nn.LayerNorm(d_model)# Encoder normalization
 
         # TODO: Create the decoder normalization layer
-        self.decoder_norm        = NotImplementedError # Decoder normalization
+        self.decoder_norm        = nn.LayerNorm(d_model) # Decoder normalization
 
         # TODO: Create the CTC head
         # Use nn.Sequential to create the CTC head
         # CTC head should project the final encoder output from the d_model space to the num_classes space
         # To be compatible with CTCLoss, a log_softmax to the output (See. nn.LogSoftmax)
-        self.ctc_head            = NotImplementedError # CTC head
+        self.ctc_head            = nn.Sequential(nn.Linear(d_model, num_classes), nn.LogSoftmax(dim=-1)) # CTC head
 
 
         # Weight tying if enabled (extra form of regularization, read more about it)
         if weight_tying:
             self.target_embedding.weight = self.final_linear.weight
 
-        raise NotImplementedError # Remove once implemented
 
     def encode(self, padded_sources: torch.Tensor, source_lengths: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, dict]:
         '''
