@@ -136,10 +136,11 @@ class CrossAttentionLayer(nn.Module):
         # Be sure to use the correct arguments for the multi-head attention layer
         # Set need_weights to True and average_attn_weights to True so we can get the attention weights
         residual = x
-        x = self.norm(x) 
-        mha_output, mha_attn_weights = self.mha(query=x, key=y, value=y, key_padding_mask=key_padding_mask, attn_mask=attn_mask, need_weights=True)
-        mha_output = self.dropout(mha_output)
-        x = residual + mha_output
+        x_norm = self.norm(x) 
+        print("debug", x_norm.shape, y.shape)
+        x, mha_attn_weights = self.mha(query=x_norm, key=y, value=y, key_padding_mask=key_padding_mask, attn_mask=attn_mask, need_weights=True)
+        x = self.dropout(x)
+        x = residual + x
         
         # NOTE: For some regularization you can apply dropout and then add residual connection
         
