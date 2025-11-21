@@ -44,7 +44,7 @@ class PositionalEncoding(nn.Module):
         """
         # TODO: Implement create_pe_table
         position = torch.arange(max_len, dtype=torch.float).unsqueeze(1)
-        w = math.pow(10000, torch.arange(0, d_model, 2).float() / d_model)
+        w = torch.pow(10000, torch.arange(0, d_model, 2).float() / d_model)
         pe = pe = torch.zeros(1, max_len, d_model)
         # Register as buffer to save with model state
         pe[0, :, 0::2] = torch.sin(position / w)
