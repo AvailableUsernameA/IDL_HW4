@@ -414,7 +414,7 @@ class EncoderDecoderTransformer(nn.Module):
             if self.training and self.layer_drop_rate > 0 and random.random() < self.layer_drop_rate:
                 continue
             # TODO: Pass through decoder layer
-            x_dec, self_attn, cross_attn = self.dec_layers[i].forward(x_dec, encoder_output, pad_mask_tgt, pad_mask_src, causal_mask)
+            x_dec, self_attn, cross_attn = self.dec_layers[i].forward(x_dec, pad_mask_tgt, causal_mask)
             
             # TODO: Save attention weights
             running_att[f'layer{i+1}_dec_self'] = self_attn
