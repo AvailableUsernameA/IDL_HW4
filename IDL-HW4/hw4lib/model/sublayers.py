@@ -138,7 +138,7 @@ class CrossAttentionLayer(nn.Module):
         residual = x
         x_norm = self.norm(x) 
         print("debug", x_norm.shape, y.shape)
-        x, mha_attn_weights = self.mha(query=x_norm, key=y, value=y, key_padding_mask=key_padding_mask, attn_mask=attn_mask, need_weights=True)
+        x, mha_attn_weights = self.mha(query=x_norm, key=y, value=y, key_padding_mask=key_padding_mask, attn_mask=attn_mask, need_weights=True, average_attn_weights=True)
         x = self.dropout(x)
         x = residual + x
         
