@@ -55,7 +55,7 @@ def CausalMask(padded_input):
     """
     # TODO: Implement CausalMask
     batch_size, tgt_len = padded_input.shape[0], padded_input.shape[1]
-    causal_mask = torch.tril(torch.ones((tgt_len, tgt_len), device=padded_input.device)).bool()
+    causal_mask = ~torch.tril(torch.ones((tgt_len, tgt_len), device=padded_input.device)).bool()
     print(causal_mask)
     return causal_mask
 
