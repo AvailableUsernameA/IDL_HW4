@@ -344,7 +344,7 @@ class EncoderDecoderTransformer(nn.Module):
         # TODO: Create source padding mask on the same device as the input
         batch_size, src_len, _ = padded_sources.shape
         pad_mask_src = torch.arange(src_len, device=padded_sources.device).expand(batch_size, src_len) < source_lengths.unsqueeze(1)
-        print("debug", pad_mask_src.shape, src_len, x_enc)
+        print("debug", pad_mask_src.shape, src_len, x_enc.shape)
 
         # TODO: Pass through encoder layers and save attention weights
         running_att = {}
