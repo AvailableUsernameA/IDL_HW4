@@ -360,7 +360,7 @@ class EncoderDecoderTransformer(nn.Module):
         # TODO: Apply normalization
         x_enc = self.encoder_norm.forward(x_enc)
         # TODO: Project to CTC logits
-        ctc_logits = {'log_probs':self.ctc_head(x_enc), 'lengths':x_enc_lengths}
+        ctc_logits = {'log_probs':self.ctc_head(x_enc).permute(0, 2, 1), 'lengths':x_enc_lengths}
 
         # TODO: Return the encoded representation, padding mask, running attention weights, and CTC inputs (see docstring)
         return x_enc, pad_mask_src, running_att, ctc_logits
