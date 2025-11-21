@@ -421,13 +421,13 @@ class EncoderDecoderTransformer(nn.Module):
             running_att[f'layer{i+1}_dec_cross'] = cross_attn
 
         # TODO: Final normalization
-        x_dec = NotImplementedError
+        x_dec = self.decoder_norm(x_dec)
 
         # TODO: Final projection
-        seq_out = NotImplementedError
+        seq_out = self.final_linear(x_dec)
 
         # TODO: Return the output sequence and running attention weights
-        raise NotImplementedError
+        return seq_out, running_att
 
     def forward(
         self,
@@ -462,16 +462,16 @@ class EncoderDecoderTransformer(nn.Module):
         # TODO: Implement forward
 
         # TODO: Encode the source sequence
-        encoder_output, pad_mask_src, enc_running_att, ctc_inputs = NotImplementedError, NotImplementedError, NotImplementedError, NotImplementedError
+        encoder_output, pad_mask_src, enc_running_att, ctc_inputs = self.encode(padded_sources, source_lengths)
         
         # TODO: Decode using encoder output
-        seq_out, dec_running_att = NotImplementedError, NotImplementedError
+        seq_out, dec_running_att = self.decode(padded_targets, encoder_output, target_lengths, pad_mask_src)
         
         # Combine attention dictionaries
         running_att = {**enc_running_att, **dec_running_att}
         
         # TODO: Return the output sequence, running attention weights, and CTC inputs (see docstring)
-        raise NotImplementedError
+        return seq_out, dec_running_att, ctc_inputs
 
     def score(self, batch_prompts: torch.Tensor, encoder_output: torch.Tensor, pad_mask_src: torch.Tensor) -> torch.Tensor:
         '''

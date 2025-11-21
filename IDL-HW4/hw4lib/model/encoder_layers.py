@@ -63,8 +63,8 @@ class SelfAttentionEncoderLayer(nn.Module):
         # TODO: Implement forward: Follow the figure in the writeup
 
         # What will be different from decoder self-attention layer?
-        x, mha_attn_weights = self.self_attn.forward(x=x, key_padding_mask=key_padding_mask)
-        x = self.ffn.forward(x)
+        x, mha_attn_weights = self.self_attn(x=x, key_padding_mask=key_padding_mask)
+        x = self.ffn(x)
         
         # TODO: Return the output tensor and attention weights
         return x, mha_attn_weights # Remove once implemented
