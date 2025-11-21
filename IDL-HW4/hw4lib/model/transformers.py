@@ -471,7 +471,7 @@ class EncoderDecoderTransformer(nn.Module):
         running_att = {**enc_running_att, **dec_running_att}
         
         # TODO: Return the output sequence, running attention weights, and CTC inputs (see docstring)
-        return seq_out, dec_running_att, ctc_inputs
+        return seq_out, running_att, ctc_inputs
 
     def score(self, batch_prompts: torch.Tensor, encoder_output: torch.Tensor, pad_mask_src: torch.Tensor) -> torch.Tensor:
         '''
