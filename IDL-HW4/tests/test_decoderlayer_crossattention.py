@@ -118,7 +118,6 @@ def test_sublayer_integration(decoder_layer):
         handle.remove()
 
     # Verify data flow
-    print("debug: ", sublayer_outputs)
     assert len(sublayer_outputs) == 3, "Not all sublayers were called"
     assert not torch.equal(sublayer_outputs['self_attn'], x), "self_attn did not transform the input"
     assert not torch.equal(sublayer_outputs['cross_attn'], sublayer_outputs['self_attn']), \
