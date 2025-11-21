@@ -352,6 +352,7 @@ class EncoderDecoderTransformer(nn.Module):
             if self.training and self.layer_drop_rate > 0 and random.random() < self.layer_drop_rate:
                 continue
             # TODO: Pass through encoder layer
+            print("encode in transformer: ", pad_mask_src.shape)
             x_enc, attention = self.enc_layers[i](x_enc, pad_mask_src)
             
             # Save attention weights
