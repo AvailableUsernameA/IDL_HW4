@@ -27,7 +27,7 @@ def PadMask(padded_input, input_lengths):
     """
     # TODO: Implement PadMask
     batch_size, src_len = padded_input.shape[0], padded_input.shape[1]
-    pad_mask_src = torch.arange(src_len, device=padded_input.device).expand(batch_size, src_len) < input_lengths.unsqueeze(1)
+    pad_mask_src = torch.arange(src_len, device=padded_input.device).expand(batch_size, src_len) >= input_lengths.unsqueeze(1)
     print(pad_mask_src)
     return pad_mask_src # Remove once implemented
 
