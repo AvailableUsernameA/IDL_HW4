@@ -343,8 +343,7 @@ class EncoderDecoderTransformer(nn.Module):
 
         # TODO: Create source padding mask on the same device as the input
         batch_size, src_len, _ = x_enc.shape
-        pad_mask_src = torch.arange(src_len, device=padded_sources.device).expand(batch_size, src_len) < source_lengths.unsqueeze(1)
-        print("debug", pad_mask_src.shape, src_len, x_enc.shape)
+        pad_mask_src = PadMask(x_enc, x_enc_lengths)
 
         # TODO: Pass through encoder layers and save attention weights
         running_att = {}
@@ -390,13 +389,13 @@ class EncoderDecoderTransformer(nn.Module):
         pad_mask_tgt = None
         batch_size, tgt_len = padded_targets.shape
         if target_lengths is not None:
-            pad_mask_tgt = torch.arange(tgt_len, device=padded_targets.device).expand(batch_size, tgt_len) >= target_lengths.unsqueeze(1)
+            pad_mask_tgt = PadMask(padded_targets, target_lengths)
 
         if pad_mask_tgt is None and self.training:
             warnings.warn("pad_mask_tgt is None, unless you are using the decoder as a standalone model or doing inference, you should provide target_lengths")
 
         # TODO: Create causal mask on the same device as the input
-        causal_mask = torch.tril(torch.ones((tgt_len, tgt_len), device=padded_targets.device))
+        causal_mask = CausalMask(padded_targets)
 
         # TODO: Apply the embedding, positional encoding, and dropout
         x_dec = self.target_embedding.forward(padded_targets)
