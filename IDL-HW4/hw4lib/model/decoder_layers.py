@@ -114,8 +114,6 @@ class CrossAttentionDecoderLayer(nn.Module):
             cross_attn_weights (torch.Tensor): The attention weights. shape: (batch_size, seq_len, seq_len)    
         '''
         # TODO: Implement forward: Follow the figure in the writeup
-        print("debug: ", x.shape, enc_output.shape)
-
         x, self_attn_weights  = self.self_attn.forward(x=x, key_padding_mask=dec_key_padding_mask, attn_mask=attn_mask)
         x, cross_attn_weights = self.cross_attn.forward(x=x, y=enc_output, key_padding_mask=enc_key_padding_mask, attn_mask=None)
         x  = self.ffn.forward(x)
