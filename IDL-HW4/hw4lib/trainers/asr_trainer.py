@@ -117,7 +117,8 @@ class ASRTrainer(BaseTrainer):
                 running_att = curr_att
                 
                 # TODO: Calculate CE loss
-                ce_loss = self.ce_criterion(seq_out,targets_golden)
+                print(seq_out.shape, targets_golden.shape)
+                ce_loss = self.ce_criterion(seq_out, targets_golden)
                 
                 
                 # TODO: Calculate CTC loss if needed
