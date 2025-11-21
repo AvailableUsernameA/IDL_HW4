@@ -330,19 +330,19 @@ class EncoderDecoderTransformer(nn.Module):
         # TODO: Implement encode
 
         # TODO: Apply speech embedding
-        x_enc, x_enc_lengths = self.source_embedding.forward(padded_sources, source_lengths)
+        x_enc, x_enc_lengths = self.source_embedding(padded_sources, source_lengths)
         
         # TODO: Apply positional encoding if not skipped
         # You can try to optionally skipping positional encoding if using an LSTM based speech embedding
         # LSTM embeddings on their own can be sufficient to capture the positional information    
         if not self.skip_encoder_pe:
-            x_enc = self.positional_encoding.forward(x_enc)
+            x_enc = self.positional_encoding(x_enc)
         
         # TODO: Apply dropout
         x_enc = self.dropout(x_enc)
 
         # TODO: Create source padding mask on the same device as the input
-        batch_size, src_len, _ = padded_sources.shape
+        batch_size, src_len, _ = x_enc.shape
         pad_mask_src = torch.arange(src_len, device=padded_sources.device).expand(batch_size, src_len) < source_lengths.unsqueeze(1)
         print("debug", pad_mask_src.shape, src_len, x_enc.shape)
 
