@@ -235,7 +235,7 @@ class SequenceGenerator:
         batch_size = x.size(0)
         sequences = x.unsqueeze(1).repeat(1, beam_width, 1)
         scores = torch.zeros((batch_size, beam_width), device=x.device)
-        finished = torch.zeros((batch_size, beam_width), dtype=torch.bool, device=x.device)
+        finished = torch.zeros((batch_size, beam_width),  dtype=torch.bool, device=x.device)#error
 
         for _ in range(self.max_length - x.size(1)):
             # Check if all sequences have finished
