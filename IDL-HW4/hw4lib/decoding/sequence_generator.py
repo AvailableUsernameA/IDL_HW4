@@ -228,14 +228,17 @@ class SequenceGenerator:
         scores = torch.zeros(batch_size*beam_width, device=x.device)
         finished = torch.zeros(batch_size*beam_width, dtype=torch.bool, device=x.device)
         x_expand = x.unsqueeze(1).repeat(1, beam_width, 1).reshape(beam_width*batch_size, -1)
-
+        print(x_expand)
         for _ in range(self.max_length - x.size(1)):
             # Check if all sequences have finished
             if finished.all():
                 break
             next_scores = self.score_fn(x_expand)
+            print(next_scores)
             filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
+            print(filtered_logits)
             score_beam_beam = (scores.unsqueeze(1)+filtered_logits).reshape(batch_size, -1)
+            print(score_beam_beam)
             token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
             
             x_pre = next_idxs // filtered_logits.size(-1)
