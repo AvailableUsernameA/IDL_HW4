@@ -236,8 +236,9 @@ class SequenceGenerator:
                 break
             x_beam_scores = []
             for b in range(beam_width):
-                x_beam_score = self.score_fn(x_expand[:, b, :])
-                x_beam_scores.append(x_beam_score)
+                x_beam_score = self.score_fn(x_expand[:, b, :].squeeze(1))
+                x_beam_scores.append(x_beam_score.unsqueeze(1))
+            x_beam_scores = torch.cat(x_beam_scores, dim=1)
             print(x_beam_scores.shape)
             filtered_logits = self._filter_logits(x_beam_scores, temperature, 0, 1)
             score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width,-1)).reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
