@@ -28,8 +28,7 @@ class ScaledDotProductAttention:
         # Calculate attention scores: (N, ..., H, L, S)
         # (N, ..., H, L, E) @ (N, ..., H, E, S) -> (N, ..., H, L, S)
         d_k = Q.shape[-1]
-        K_shape = K.shape
-        K_shape = list(K_shape)
+        K_shape = [i for i in range(len(K.shape))]
         temp = K_shape[-1]
         K_shape[-1] = K_shape[-2]
         K_shape[-2] = temp
