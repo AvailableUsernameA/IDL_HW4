@@ -62,7 +62,6 @@ class Softmax:
             # Calculate the derivative of the loss with respect to the i-th input, please read the writeup for it.
             # Hint: How can we use (1×C) and (C×C) to get (1×C) and stack up vertically to give (N×C) derivative matrix?
             dLdZ[i, :] = dLdA[i]@J  # TODO
-        #dLdZ = self.A * (dLdA - np.sum(dLdA * self.A, axis=self.dim, keepdims=True))
         # Reshape back to original dimensions if necessary
         if len(shape) > 2:
             # Restore shapes to original
