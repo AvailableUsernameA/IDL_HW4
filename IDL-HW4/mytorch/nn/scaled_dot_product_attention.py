@@ -61,15 +61,19 @@ class ScaledDotProductAttention:
 
         # Calculate gradients for V: (N, ..., H, S, Ev)
         # (N, ..., H, L, S) @ (N, ..., H, S, Ev) -> (N, ..., H, L, Ev) 
-        # Use the transpose of stored softmax output to swap last two dimensions   
-        d_V = self.attention_scores@d_output
+        # Use the transpose of stored softmax output to swap last two dimensions  
+        attention_shape = [i for i in range(len(self.attention_scores.shape))]
+        temp = attention_shape[-1]
+        attention_shape[-1] = attention_shape[-2]
+        attention_shape[-2] = temp 
+        d_V = self.attention_scores.transpose(attention_shape)@d_output
         
         # Calculate gradients for attention scores
         # (N, ..., H, L, Ev) @ (N, ..., H, Ev, S) -> (N, ..., H, L, S)
         V_shape = [i for i in range(len(self.V.shape))]
         temp = V_shape[-1]
         V_shape[-1] = V_shape[-2]
-        V_shape[-2] = V_shape[-1]
+        V_shape[-2] = temp
         d_attention_scores = d_output@self.V.transpose(V_shape)
         d_scaled_dot_product = self.softmax.backward(d_attention_scores)
         
