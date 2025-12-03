@@ -23,7 +23,7 @@ class Softmax:
         # TODO: Implement forward pass
         # Compute the softmax in a numerically stable way
         # Apply it to the dimension specified by the `dim` parameter
-        exp_Z = np.exp(Z = Z-np.max(Z, axis=1, keepdims=True))
+        exp_Z = np.exp(Z-np.max(Z, axis=1, keepdims=True))
         sum_exp = np.sum(exp_Z, axis=self.dim, keepdims=True)
         self.A = exp_Z / sum_exp
         return self.A
