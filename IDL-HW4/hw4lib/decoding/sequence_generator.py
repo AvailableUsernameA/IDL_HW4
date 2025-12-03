@@ -225,32 +225,29 @@ class SequenceGenerator:
         
         # TODO: Implement beam search
         batch_size = x.size(0)
-        scores = torch.zeros(batch_size*beam_width, device=x.device)
-        finished = torch.zeros(batch_size*beam_width, dtype=torch.bool, device=x.device)
+        scores = torch.zeros(batch_size, beam_width, device=x.device)
+        finished = torch.zeros(batch_size, beam_width, dtype=torch.bool, device=x.device)
         x_expand = x.unsqueeze(1).repeat(1, beam_width, 1)#.reshape(beam_width*batch_size, -1)
         print("x_expand", x_expand)
-        print(finished, finished.all())
         for _ in range(self.max_length - x.size(1)):
             # Check if all sequences have finished
             if finished.all():
                 break
-            next_scores = self.score_fn(x_expand) # (batch_size*beam_width, vocab_size)
-            print(next_scores)
+            next_scores = self.score_fn(x_expand) # (batch_size, beam_width*vocab_size)
             filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
-            print(filtered_logits)
-            score_beam_beam = (scores.unsqueeze(1)+filtered_logits).reshape(batch_size, -1)
+            score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width,-1)).reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
             print(score_beam_beam)
             token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
             
-            x_pre = next_idxs // filtered_logits.size(-1)
-            next_tokens = next_idxs % filtered_logits.size(-1)
+            print(token_scores.shape, next_idxs.shape)
+            x_pre_idx = next_idxs // (filtered_logits.size(-1)//beam_width)
+            x_pre = x_expand[x_pre_idx]
+            next_tokens = next_idxs % (filtered_logits.size(-1)//beam_width)
 
             new_scores = scores[x_pre]+token_scores
             scores = torch.where(finished, scores, new_scores)
 
-            for i in range(batch_size * beam_width):
-                if not finished[i]:
-                    x_expand[i, -1] = next_tokens[i]
+            x = torch.cat([x_pre, next_tokens.unsqueeze(1)], dim=2)
 
             is_eos = (next_tokens == self.tokenizer.eos_id)
             finished = finished | is_eos
