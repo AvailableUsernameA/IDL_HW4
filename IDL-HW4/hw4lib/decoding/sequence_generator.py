@@ -260,7 +260,8 @@ class SequenceGenerator:
             score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width, -1))
             vocab_size = score_beam_beam.size(2)
             score_beam_beam = score_beam_beam.reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
-            print(score_beam_beam.shape)
+            
+
             token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
 
             x_pre_idx = next_idxs // vocab_size

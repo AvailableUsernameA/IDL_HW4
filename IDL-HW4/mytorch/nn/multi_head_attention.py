@@ -70,15 +70,15 @@ class MultiHeadAttention:
         # (N, S, embed_dim) -> (N, num_heads, S, embed_dim // num_heads)
         k = k.reshape(self.N, self.num_heads, self.S, self.embed_dim//self.num_heads)
         # (N, S, embed_dim) -> (N, num_heads, S, embed_dim // num_heads)
-        v = NotImplementedError
+        v = v.reshape(self.N, self.num_heads, self.S, self.embed_dim//self.num_heads)
 
         # Merge the masks
         # (N, S) + (L, S) -> (N, H, L, S)
-        mask = NotImplementedError
+        mask = key_padding_mask | attn_mask
 
         # Apply the attention mechanism
         # (N, num_heads, L, embed_dim // num_heads)
-        attn_outputs = NotImplementedError
+        attn_outputs = self.attention(q, k, v, mask)
 
         # Merge the attention outputs   
         # (N, num_heads, L, embed_dim // num_heads) -> (N, L, embed_dim)
