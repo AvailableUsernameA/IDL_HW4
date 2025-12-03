@@ -243,14 +243,15 @@ class SequenceGenerator:
 
             new_scores = scores[x_pre]+token_scores
             scores = torch.where(finished, scores, new_scores)
-            # Append next tokens
-            x_expand = torch.cat([x_expand, next_tokens.unsqueeze(1)], dim=2) # (batch_size, seq_len + 1)
+
+            for i in range(batch_size * beam_width):
+                if not finished[i]:
+                    x_expand[i, -1] = next_tokens[i]
+
             is_eos = (next_tokens == self.tokenizer.eos_id)
             finished = finished | is_eos
 
         return x_expand.reshape(batch_size, beam_width, -1), scores.reshape(batch_size, -1)
-
-
 
 
 
