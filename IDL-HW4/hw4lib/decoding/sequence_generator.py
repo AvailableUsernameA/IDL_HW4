@@ -241,14 +241,16 @@ class SequenceGenerator:
             x_beam_scores = torch.cat(x_beam_scores, dim=1)
             next_scores = x_beam_scores.reshape(batch_size, -1)
             filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
-            score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width, -1)).reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
+            score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width, -1))
+            vocab_size = score_beam_beam.size(2)
+            score_beam_beam = score_beam_beam.reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
             print(score_beam_beam.shape)
             token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
             
             print(token_scores, next_idxs)
-            x_pre_idx = next_idxs // seq_len
+            x_pre_idx = next_idxs // vocab_size
             x_pre = x_expand[x_pre_idx]
-            next_tokens = next_idxs % seq_len
+            next_tokens = next_idxs % vocab_size
 
             new_scores = scores[x_pre]+token_scores
             scores = torch.where(finished, scores, new_scores)
