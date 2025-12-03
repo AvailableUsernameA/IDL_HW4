@@ -58,11 +58,11 @@ class MultiHeadAttention:
         
         # Project the query, key, and value inputs into query, key, and value
         # (N, L, E) -> (N, L, embed_dim)
-        q = self.q_proj(query)
+        q = self.q_proj.forward(query)
         # (N, S, E) -> (N, S, embed_dim)
-        k = self.k_proj(key)
+        k = self.k_proj.forward(key)
         # (N, S, E) -> (N, S, embed_dim)
-        v = self.v_proj(value)
+        v = self.v_proj.forward(value)
 
         # Split the query, key, and value into multiple heads
         # (N, L, embed_dim) -> (N, num_heads, L, embed_dim // num_heads)
