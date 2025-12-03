@@ -74,7 +74,15 @@ class MultiHeadAttention:
 
         # Merge the masks
         # (N, S) + (L, S) -> (N, H, L, S)
-        mask = key_padding_mask | attn_mask
+        mask = None
+        if key_padding_mask:
+            mask = key_padding_mask.unsqueeze(-1).unsqueeze(-1)
+        if attn_mask:
+            if mask:
+                mask = mask|(attn_mask.unsqueeze(0).unsqueeze(0))
+            else:
+                mask = attn_mask.unsqueeze(0).unsqueeze(0)
+
         print(mask.shape)
 
         # Apply the attention mechanism
@@ -83,14 +91,14 @@ class MultiHeadAttention:
 
         # Merge the attention outputs   
         # (N, num_heads, L, embed_dim // num_heads) -> (N, L, embed_dim)
-        attn_output = NotImplementedError
+        attn_output = attn_output.transpose(0, 2, 1, 3).reshape(self.N, self.L, -1)
 
         # Project the attention outputs
         # (N, L, embed_dim) -> (N, L, embed_dim)
-        output = NotImplementedError
+        output = self.out_proj.forward(attn_output)
 
         # Return output
-        raise NotImplementedError
+        raise output
 
     def backward(self, d_output):
         """
