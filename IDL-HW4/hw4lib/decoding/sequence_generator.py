@@ -258,7 +258,7 @@ class SequenceGenerator:
             new_scores = (scores.reshape(-1)[prev_beam_flat]+token_scores.reshape(-1)).reshape(batch_size, beam_width)
             scores = torch.where(finished, scores, new_scores)
 
-            x = torch.cat([prev_seqs, next_tokens.unsqueeze(1)], dim=2)
+            x = torch.cat([prev_seqs, next_tokens.unsqueeze(2)], dim=2)
 
             is_eos = (next_tokens == self.tokenizer.eos_id)
             finished = finished | is_eos
