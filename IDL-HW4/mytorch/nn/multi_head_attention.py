@@ -20,14 +20,14 @@ class MultiHeadAttention:
         self.num_heads = num_heads
         
         # Initialize your scaled dot product attention layer
-        self.attention = NotImplementedError
+        self.attention = ScaledDotProductAttention()
         
         # Initialize your linear layer
         #  embed_dim -> embed_dim
-        self.q_proj   = NotImplementedError
-        self.k_proj   = NotImplementedError
-        self.v_proj   = NotImplementedError
-        self.out_proj = NotImplementedError
+        self.q_proj   = Linear(embed_dim, embed_dim)
+        self.k_proj   = Linear(embed_dim, embed_dim)
+        self.v_proj   = Linear(embed_dim, embed_dim)
+        self.out_proj = Linear(embed_dim, embed_dim)
 
     def init_weights(self, Wq, bq, Wk, bk, Wv, bv, Wo, bo):
         """
@@ -58,17 +58,17 @@ class MultiHeadAttention:
         
         # Project the query, key, and value inputs into query, key, and value
         # (N, L, E) -> (N, L, embed_dim)
-        q = NotImplementedError
+        q = self.q_proj(query)
         # (N, S, E) -> (N, S, embed_dim)
-        k = NotImplementedError
+        k = self.k_proj(key)
         # (N, S, E) -> (N, S, embed_dim)
-        v = NotImplementedError
+        v = self.v_proj(value)
 
         # Split the query, key, and value into multiple heads
         # (N, L, embed_dim) -> (N, num_heads, L, embed_dim // num_heads)
-        q = NotImplementedError
+        q = q.reshape(self.N, self.num_heads, self.L, self.embed_dim//self.num_heads)
         # (N, S, embed_dim) -> (N, num_heads, S, embed_dim // num_heads)
-        k = NotImplementedError
+        k = k.reshape(self.N, self.num_heads, self.S, self.embed_dim//self.num_heads)
         # (N, S, embed_dim) -> (N, num_heads, S, embed_dim // num_heads)
         v = NotImplementedError
 
