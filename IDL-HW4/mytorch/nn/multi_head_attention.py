@@ -80,11 +80,9 @@ class MultiHeadAttention:
             mask = key_padding_mask[:, :, np.newaxis, np.newaxis]
         if attn_mask is not None:
             if mask is not None:
-                mask = mask|(attn_mask[np.newaxis, np.newaxis, :, :])
+                mask = (mask>0)|(attn_mask[np.newaxis, np.newaxis, :, :]>0)
             else:
                 mask = attn_mask[np.newaxis, np.newaxis, :, :]
-
-        print(mask.shape)
 
         # Apply the attention mechanism
         # (N, num_heads, L, embed_dim // num_heads)
