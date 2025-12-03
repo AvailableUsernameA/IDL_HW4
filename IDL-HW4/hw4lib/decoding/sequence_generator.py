@@ -227,7 +227,7 @@ class SequenceGenerator:
         batch_size = x.size(0)
         seq_len = x.size(1)
         scores = torch.zeros(batch_size, beam_width, device=x.device)
-        finished = torch.full(batch_size, beam_width, dtype=torch.bool, device=x.device)
+        finished = torch.zeros(batch_size, beam_width, dtype=torch.bool, device=x.device)
         logits = self.score_fn(x)
         vocab_size = logits.shape[-1]
         logits = self._apply_repeat_penalty(logits, x, repeat_penalty)
