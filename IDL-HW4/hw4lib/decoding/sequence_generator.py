@@ -234,6 +234,7 @@ class SequenceGenerator:
             if finished.all():
                 break
             next_scores = self.score_fn(x_expand) # (batch_size, beam_width*vocab_size)
+            print(next_scores.shape)
             filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
             score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width,-1)).reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
             print(score_beam_beam)
