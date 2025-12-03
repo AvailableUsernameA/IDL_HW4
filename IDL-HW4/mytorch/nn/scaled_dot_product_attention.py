@@ -27,6 +27,9 @@ class ScaledDotProductAttention:
         
         # Calculate attention scores: (N, ..., H, L, S)
         # (N, ..., H, L, E) @ (N, ..., H, E, S) -> (N, ..., H, L, S)
+        self.Q = Q
+        self.K = K
+        self.V = V
         d_k = Q.shape[-1]
         K_shape = [i for i in range(len(K.shape))]
         temp = K_shape[-1]
@@ -59,22 +62,26 @@ class ScaledDotProductAttention:
         # Calculate gradients for V: (N, ..., H, S, Ev)
         # (N, ..., H, L, S) @ (N, ..., H, S, Ev) -> (N, ..., H, L, Ev) 
         # Use the transpose of stored softmax output to swap last two dimensions   
-        d_V = NotImplementedError
+        d_V = self.attention_scores.transpose(0, 1, 2, 4, 3)@d_output
         
         # Calculate gradients for attention scores
         # (N, ..., H, L, Ev) @ (N, ..., H, Ev, S) -> (N, ..., H, L, S)
-        d_attention_scores = NotImplementedError
-        d_scaled_dot_product = NotImplementedError
+        V_shape = [i for i in range(len(self.V.shape))]
+        temp = V_shape[-1]
+        V_shape[-1] = V_shape[-2]
+        V_shape[-2] = V_shape[-1]
+        d_attention_scores = d_output@self.V.transpose(V_shape)
+        d_scaled_dot_product = self.softmax.backward(d_attention_scores)
         
         # Scale gradients by sqrt(d_k)
-        d_scaled_dot_product = NotImplementedError
+        d_scaled_dot_product = d_scaled_dot_product / np.sqrt(self.Q.shape[-1])
         
         # Calculate gradients for Q and K
         # (N, ..., H, L, S) @ (N, ..., H, S, E) -> (N, ..., H, L, E)   
-        d_Q = NotImplementedError
+        d_Q = d_scaled_dot_product@self.K
         # (N, ..., H, L, S) @ (N, ..., H, L, E) -> (N, ..., H, S, E)
-        d_K = NotImplementedError
+        d_K = d_scaled_dot_product@self.Q
         
         # Return gradients for Q, K, V
-        raise NotImplementedError
+        return d_Q, d_K, d_V
 
