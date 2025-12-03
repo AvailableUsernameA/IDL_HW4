@@ -28,14 +28,14 @@ class ScaledDotProductAttention:
         # Calculate attention scores: (N, ..., H, L, S)
         # (N, ..., H, L, E) @ (N, ..., H, E, S) -> (N, ..., H, L, S)
         d_k = Q.shape[-1]
+        K_shape = K.shape
         K_shape = list(K_shape)
         print(K_shape)
         temp = K_shape[-1]
         K_shape[-1] = K_shape[-2]
         K_shape[-2] = temp
         print(K_shape)
-        K_shape = tuple(K_shape)
-        print(K_shape)
+        
         print(K.shape)
         print(K.transpose(-2, -1).shape)
         scaled_dot_product = (Q@K.transpose(-2, -1))/np.sqrt(d_k)
