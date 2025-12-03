@@ -28,6 +28,8 @@ class ScaledDotProductAttention:
         # Calculate attention scores: (N, ..., H, L, S)
         # (N, ..., H, L, E) @ (N, ..., H, E, S) -> (N, ..., H, L, S)
         d_k = Q.shape[-1]
+        print(K.shape)
+        print(K.transpose(-2, -1).shape)
         scaled_dot_product = (Q@K.transpose(-2, -1))/np.sqrt(d_k)
         
         # Apply mask before softmax if provided
