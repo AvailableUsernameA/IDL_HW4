@@ -227,17 +227,29 @@ class SequenceGenerator:
         batch_size = x.size(0)
         scores = torch.zeros(batch_size*beam_width, device=x.device)
         finished = torch.zeros(batch_size*beam_width, dtype=torch.bool, device=x.device)
-        x_expand = x.unsqueeze(1).repeat(1, beam_width, 1)
+        x_expand = x.unsqueeze(1).repeat(1, beam_width, 1).reshape(beam_width*batch_size, -1)
 
         for _ in range(self.max_length - x.size(1)):
             # Check if all sequences have finished
             if finished.all():
                 break
             next_scores = self.score_fn(x_expand)
-            filtered_logits = self._filter_logits(next_scores, temperature, 0, beam_width)
-            print(filtered_logits.shape, x.shape, x_expand.shape)
-            next_tokens = filtered_logits.argmax(dim=-1)
-            token_scores = filtered_logits.gather(1, next_tokens.unsqueeze(1)).squeeze(1) # (batch_size,)
+            filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
+            score_beam_beam = (scores.unsqueeze(1)+filtered_logits).reshape(batch_size, -1)
+            token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
+            
+            x_pre = next_idxs // filtered_logits.size(-1)
+            next_tokens = next_idxs % filtered_logits.size(-1)
+
+            new_scores = scores[x_pre]+token_scores
+            scores = torch.where(finished, scores, new_scores)
+            # Append next tokens
+            x_expand = torch.cat([x_expand, next_tokens.unsqueeze(1)], dim=2) # (batch_size, seq_len + 1)
+            is_eos = (next_tokens == self.tokenizer.eos_id)
+            finished = finished | is_eos
+
+        return x, scores
+
 
 
 
