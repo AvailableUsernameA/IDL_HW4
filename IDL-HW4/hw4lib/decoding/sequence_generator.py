@@ -249,13 +249,16 @@ class SequenceGenerator:
             
             print(token_scores, next_idxs)
             x_pre_idx = next_idxs // vocab_size
-            x_pre = x_expand[x_pre_idx]
             next_tokens = next_idxs % vocab_size
 
-            new_scores = scores[x_pre]+token_scores
+            batch_indices = torch.arange(batch_size)
+            prev_beam_flat = (batch_indices * beam_width + x_pre_idx).reshape(-1)
+            prev_seqs = (x_expand.view(batch_size * beam_width, -1)[prev_beam_flat]).reshape(batch_size, beam_width, -1)
+
+            new_scores = scores[x_pre_idx]+token_scores
             scores = torch.where(finished, scores, new_scores)
 
-            x = torch.cat([x_pre, next_tokens.unsqueeze(1)], dim=2)
+            x = torch.cat([prev_seqs, next_tokens.unsqueeze(1)], dim=2)
 
             is_eos = (next_tokens == self.tokenizer.eos_id)
             finished = finished | is_eos
