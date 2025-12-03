@@ -261,7 +261,7 @@ class SequenceGenerator:
             idx = indices // vocab_size
             next_tokens = scores % vocab_size
 
-            finished = finished.gather(1, beam_width)|(next_tokens==self.tokenizer.eos_id)
+            finished = finished.gather(1, idx)|(next_tokens==self.tokenizer.eos_id)
             batch_indices = torch.arange(batch_size, device=x.device).unsqueeze(1).expand(-1, beam_width)
             x = x[batch_indices, idx]
             x = torch.cat([x, next_tokens.unsqueeze(-1)], dim=-1)
