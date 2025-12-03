@@ -253,9 +253,9 @@ class SequenceGenerator:
 
             batch_indices = torch.arange(batch_size)
             prev_beam_flat = (batch_indices * beam_width + x_pre_idx).reshape(-1)
-            prev_seqs = (x_expand.view(batch_size * beam_width, -1)[prev_beam_flat]).reshape(batch_size, beam_width, -1)
+            prev_seqs = (x_expand.reshape(batch_size * beam_width, -1)[prev_beam_flat]).reshape(batch_size, beam_width, -1)
 
-            new_scores = scores[x_pre_idx]+token_scores
+            new_scores = (scores.reshape(-1)[prev_beam_flat]+token_scores.reshape(-1)).reshape(batch_size, beam_width)
             scores = torch.where(finished, scores, new_scores)
 
             x = torch.cat([prev_seqs, next_tokens.unsqueeze(1)], dim=2)
