@@ -78,13 +78,17 @@ class ScaledDotProductAttention:
         d_scaled_dot_product = self.softmax.backward(d_attention_scores)
         
         # Scale gradients by sqrt(d_k)
-        d_scaled_dot_product = d_scaled_dot_product * np.sqrt(self.Q.shape[-1])
+        d_scaled_dot_product = d_scaled_dot_product / np.sqrt(self.Q.shape[-1])
         
         # Calculate gradients for Q and K
         # (N, ..., H, L, S) @ (N, ..., H, S, E) -> (N, ..., H, L, E)   
         d_Q = d_scaled_dot_product@self.K
         # (N, ..., H, L, S) @ (N, ..., H, L, E) -> (N, ..., H, S, E)
-        d_K = d_scaled_dot_product@self.Q
+        scale_shape = [i for i in range(len(d_scaled_dot_product.shape))]
+        temp = scale_shape[-1]
+        scale_shape[-1] = scale_shape[-2]
+        scale_shape[-2] = temp
+        d_K = d_scaled_dot_product.transpose(scale_shape)@self.Q
         
         # Return gradients for Q, K, V
         return d_Q, d_K, d_V
