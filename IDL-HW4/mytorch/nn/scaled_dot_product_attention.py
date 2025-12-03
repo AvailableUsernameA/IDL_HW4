@@ -33,7 +33,7 @@ class ScaledDotProductAttention:
         temp = K_shape[-1]
         K_shape[-1] = K_shape[-2]
         K_shape[-2] = temp
-        scaled_dot_product = (Q@K.transpose(axes=K_shape))/np.sqrt(d_k)
+        scaled_dot_product = (Q@np.transpose(K, K_shape))/np.sqrt(d_k)
         
         # Apply mask before softmax if provided
         # If mask is not None, add -self.eps to the attention scores for positions to ignore
