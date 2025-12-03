@@ -246,7 +246,7 @@ class SequenceGenerator:
                 x_expand = torch.cat([x_expand, next_idxs.unsqueeze(2)], dim=2) # (batch_size, seq_len + 1)
 
                 # Check if any sequence has reached EOS 
-                is_eos = (next_tokens == self.tokenizer.eos_id)
+                is_eos = (next_idxs == self.tokenizer.eos_id)
                 finished = finished | is_eos
                 continue
 
