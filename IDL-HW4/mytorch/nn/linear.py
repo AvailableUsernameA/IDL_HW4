@@ -43,9 +43,8 @@ class Linear:
 
         # Compute gradients (refer to the equations in the writeup)
         self.dLdA = dLdZ@self.W
-        print(dLdZ.shape, self.A.shape)
-        self.dLdW = np.transpose(dLdZ)@self.A
-        self.dLdb = np.transpose(dLdZ)@self.ones
+        self.dLdW = dLdZ.reshape(-1, dLdZ.shape[-1]).T@self.A.reshape(-1, self.A.shape[-1])
+        self.dLdb = np.sum(dLdZ.reshape(-1, dLdZ.shape[-1]), axis=0)
         # self.dLdA = NotImplementedError
 
         # Return gradient of loss wrt input
