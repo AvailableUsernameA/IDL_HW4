@@ -248,7 +248,7 @@ class SequenceGenerator:
             is_eos = (next_tokens == self.tokenizer.eos_id)
             finished = finished | is_eos
 
-        return x, scores
+        return x_expand.reshape(batch_size, beam_width, -1), scores.reshape(batch_size, -1)
 
 
 
