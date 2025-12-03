@@ -75,10 +75,10 @@ class MultiHeadAttention:
         # Merge the masks
         # (N, S) + (L, S) -> (N, H, L, S)
         mask = None
-        if key_padding_mask!=None:
+        if key_padding_mask is not None:
             mask = key_padding_mask.unsqueeze(-1).unsqueeze(-1)
-        if attn_mask!=None:
-            if mask!=None:
+        if attn_mask is not None:
+            if mask is not None:
                 mask = mask|(attn_mask.unsqueeze(0).unsqueeze(0))
             else:
                 mask = attn_mask.unsqueeze(0).unsqueeze(0)
