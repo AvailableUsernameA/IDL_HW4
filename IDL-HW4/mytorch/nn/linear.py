@@ -43,6 +43,7 @@ class Linear:
 
         # Compute gradients (refer to the equations in the writeup)
         self.dLdA = dLdZ@self.W
+        print(dLdZ.shape, self.A.shape)
         self.dLdW = np.transpose(dLdZ)@self.A
         self.dLdb = np.transpose(dLdZ)@self.ones
         # self.dLdA = NotImplementedError
