@@ -236,9 +236,7 @@ class SequenceGenerator:
                 break
             x_beam_scores = []
             for b in range(beam_width):
-                print(x_expand[:, b, :].shape)
-                print(x_expand[:, b, :].squeeze(1).shape)
-                x_beam_score = self.score_fn(x_expand[:, b, :].squeeze(1))
+                x_beam_score = self.score_fn(x_expand[:, b, :])
                 x_beam_scores.append(x_beam_score.unsqueeze(1))
             x_beam_scores = torch.cat(x_beam_scores, dim=1)
             print(x_beam_scores.shape)
