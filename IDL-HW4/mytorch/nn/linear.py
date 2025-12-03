@@ -32,7 +32,7 @@ class Linear:
         # Store input for backward pass
         self.A = A
         
-        return self.W@self.A+self.b
+        return self.A@(self.W.T)+self.b
 
     def backward(self, dLdZ):
         """
