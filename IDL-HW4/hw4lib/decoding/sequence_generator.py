@@ -258,8 +258,8 @@ class SequenceGenerator:
 
             scores, indices = torch.topk(cum_scores, beam_width, dim=-1)
 
-            idx = indices // vocab_size
-            next_tokens = scores % vocab_size
+            idx = indices // self.tokenizer.vocab_size
+            next_tokens = indices % self.tokenizer.vocab_size
 
             finished = finished.gather(1, idx)|(next_tokens==self.tokenizer.eos_id)
             batch_indices = torch.arange(batch_size, device=x.device).unsqueeze(1).expand(-1, beam_width)
