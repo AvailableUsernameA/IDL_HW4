@@ -76,12 +76,13 @@ class MultiHeadAttention:
         # (N, S) + (L, S) -> (N, H, L, S)
         mask = None
         if key_padding_mask is not None:
-            mask = key_padding_mask.unsqueeze(-1).unsqueeze(-1)
+
+            mask = key_padding_mask[:, :, np.newaxis, np.newaxis]
         if attn_mask is not None:
             if mask is not None:
-                mask = mask|(attn_mask.unsqueeze(0).unsqueeze(0))
+                mask = mask|(attn_mask[np.newaxis, np.newaxis, :, :])
             else:
-                mask = attn_mask.unsqueeze(0).unsqueeze(0)
+                mask = attn_mask[np.newaxis, np.newaxis, :, :]
 
         print(mask.shape)
 
