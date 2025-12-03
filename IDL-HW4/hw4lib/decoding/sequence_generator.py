@@ -224,17 +224,16 @@ class SequenceGenerator:
             raise ValueError("max_length must be >= input sequence length")
         
         # TODO: Implement beam search
-        print(x)
         batch_size = x.size(0)
         scores = torch.zeros(batch_size, beam_width, device=x.device)
         finished = torch.zeros(batch_size, beam_width, dtype=torch.bool, device=x.device)
-        x_expand = x.unsqueeze(1).repeat(1, beam_width, 1)
-        print("x_expand", x_expand)
+        x_expand = x.unsqueeze(1).repeat(1, beam_width, 1) # (batch_size, beam_width, seq_len)
+
         for _ in range(self.max_length - x.size(1)):
             # Check if all sequences have finished
             if finished.all():
                 break
-            next_scores = self.score_fn(x_expand) # (batch_size, beam_width*vocab_size) (1, 1000)
+            next_scores = self.score_fn(x_expand) # (batch_size, beam_width*vocab_size) (1, 1000)?
             print(next_scores.shape)
             filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
             score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width,-1)).reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
