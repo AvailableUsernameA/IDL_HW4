@@ -227,59 +227,49 @@ class SequenceGenerator:
         batch_size = x.size(0)
         seq_len = x.size(1)
         scores = torch.zeros(batch_size, beam_width, device=x.device)
-        finished = torch.zeros(batch_size, beam_width, dtype=torch.bool, device=x.device)
-        x_expand = x.unsqueeze(1).repeat(1, beam_width, 1) # (batch_size, beam_width, seq_len)
+        finished = torch.full(batch_size, beam_width, dtype=torch.bool, device=x.device)
+        logits = self.score_fn(x)
+        vocab_size = logits.shape[-1]
+        logits = self._apply_repeat_penalty(logits, x, repeat_penalty)
+        log_probs = logits/temperature
+        log_probs = torch.log_softmax(log_probs, dim=-1)
+        scores, next_tokens = torch.topk(log_probs, beam_width, dim=-1)
+        x = x.unsqueeze(1).repeat(1, beam_width, 1)
+        x = torch.cat([x, next_tokens.unsqueeze(-1)], dim=-1)
+        finished = finished | (next_tokens==self.tokenizer.eos_id)
 
         for step in range(self.max_length - seq_len):
             # Check if all sequences have finished
             if finished.all():
                 break
-            if step==0:
-                next_scores = self.score_fn(x) # (batch_size, vocab_size)
-                filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
-                
-                # We need probabilities for multinomial sampling
-                token_scores, next_idxs = torch.topk(filtered_logits, beam_width, dim=-1)
-                scores = token_scores.reshape(batch_size, beam_width)
 
-                # Append next tokens
-                x_expand = torch.cat([x_expand, next_idxs.unsqueeze(2)], dim=2) # (batch_size, seq_len + 1)
-
-                # Check if any sequence has reached EOS 
-                is_eos = (next_idxs == self.tokenizer.eos_id)
-                finished = finished | is_eos
-                continue
-
-            x_beam_scores = []
+            next_token_scores = []
             for b in range(beam_width):
-                x_beam_score = self.score_fn(x_expand[:, b, :])
-                x_beam_scores.append(x_beam_score.unsqueeze(1))
-            x_beam_scores = torch.cat(x_beam_scores, dim=1)
-            next_scores = x_beam_scores.reshape(batch_size, -1)
-            filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
-            score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width, -1))
-            vocab_size = score_beam_beam.size(2)
-            score_beam_beam = score_beam_beam.reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
-            
+                logits = self.score_fn(x[:, b, :])
+                next_token_scores.append(logits)
+            next_token_scores = torch.stack(next_token_scores, dim=1)
 
-            token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
+            next_token_scores = self._apply_repeat_penalty(next_token_scores, x, repeat_penalty)
+            next_token_scores = next_token_scores/temperature
+            next_token_scores = torch.log_softmax(next_token_scores, dim=-1)
 
-            x_pre_idx = next_idxs // vocab_size
-            next_tokens = next_idxs % vocab_size
+            cum_scores = scores.unsqueeze(-1)+next_token_scores
+            cum_scores = cum_scores.view(-1, beam_width*vocab_size)
 
-            batch_indices = torch.arange(batch_size)
-            prev_beam_flat = (batch_indices * beam_width + x_pre_idx).reshape(-1)
-            prev_seqs = (x_expand.reshape(batch_size * beam_width, -1)[prev_beam_flat]).reshape(batch_size, beam_width, -1)
+            scores, indices = torch.topk(cum_scores, beam_width, dim=-1)
 
-            new_scores = (scores.reshape(-1)[prev_beam_flat]+token_scores.reshape(-1)).reshape(batch_size, beam_width)
-            scores = torch.where(finished, scores, new_scores)
+            idx = indices // vocab_size
+            next_tokens = scores % vocab_size
 
-            x = torch.cat([prev_seqs, next_tokens.unsqueeze(2)], dim=2)
+            finished = finished.gather(1, beam_width)|(next_tokens==self.tokenizer.eos_id)
+            batch_indices = torch.arange(batch_size, device=x.device).unsqueeze(1).expand(-1, beam_width)
+            x = x[batch_indices, idx]
+            x = torch.cat([x, next_tokens.unsqueeze(-1)], dim=-1)
+        scores, sorted_indices = torch.sort(scores, dim=1, descending=True)
+        batch_indices = torch.arange(batch_size, device=x.device).unsqueeze(1).expand_as(sorted_indices)
+        x = x[batch_indices, sorted_indices]
 
-            is_eos = (next_tokens == self.tokenizer.eos_id)
-            finished = finished | is_eos
-
-        return x_expand.reshape(batch_size, beam_width, -1), scores.reshape(batch_size, -1)
+        return x, scores
 
 
     def generate_sample(

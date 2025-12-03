@@ -77,7 +77,7 @@ class MultiHeadAttention:
         mask = None
         if key_padding_mask is not None:
 
-            mask = key_padding_mask[:, :, np.newaxis]
+            mask = key_padding_mask[:, :, np.newaxis, np.newaxis]
         if attn_mask is not None:
             if mask is not None:
                 mask = (mask>0)|(attn_mask[np.newaxis, np.newaxis, :, :]>0)
@@ -97,7 +97,7 @@ class MultiHeadAttention:
         output = self.out_proj.forward(attn_output)
 
         # Return output
-        raise output
+        return output
 
     def backward(self, d_output):
         """
