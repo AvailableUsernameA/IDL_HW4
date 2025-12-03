@@ -235,7 +235,7 @@ class SequenceGenerator:
             if finished.all():
                 break
             x_beam_scores = []
-            for b in beam_width:
+            for b in range(beam_width):
                 x_beam_score = self.score_fn(x_expand[:, b, :])
                 x_beam_scores.append(x_beam_score)
             print(x_beam_scores.shape)
