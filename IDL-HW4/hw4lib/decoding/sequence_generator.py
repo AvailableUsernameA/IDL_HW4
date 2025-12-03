@@ -241,7 +241,7 @@ class SequenceGenerator:
             x_beam_scores = torch.cat(x_beam_scores, dim=1)
             next_scores = x_beam_scores.reshape(batch_size, -1)
             filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
-            score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width, 1)).reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
+            score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width, -1)) # (batch_size, beam_width*vocab_size)
             print(score_beam_beam.shape)
             token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
             
