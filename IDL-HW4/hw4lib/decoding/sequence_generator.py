@@ -230,10 +230,26 @@ class SequenceGenerator:
         finished = torch.zeros(batch_size, beam_width, dtype=torch.bool, device=x.device)
         x_expand = x.unsqueeze(1).repeat(1, beam_width, 1) # (batch_size, beam_width, seq_len)
 
-        for _ in range(self.max_length - seq_len):
+        for step in range(self.max_length - seq_len):
             # Check if all sequences have finished
             if finished.all():
                 break
+            if step==0:
+                next_scores = self.score_fn(x) # (batch_size, vocab_size)
+                filtered_logits = self._filter_logits(next_scores, temperature, 0, 1)
+                
+                # We need probabilities for multinomial sampling
+                token_scores, next_idxs = torch.topk(filtered_logits, beam_width, dim=-1)
+                scores = token_scores.reshape(batch_size, beam_width)
+
+                # Append next tokens
+                x_expand = torch.cat([x_expand, next_idxs.unsqueeze(2)], dim=2) # (batch_size, seq_len + 1)
+
+                # Check if any sequence has reached EOS 
+                is_eos = (next_tokens == self.tokenizer.eos_id)
+                finished = finished | is_eos
+                continue
+
             x_beam_scores = []
             for b in range(beam_width):
                 x_beam_score = self.score_fn(x_expand[:, b, :])
@@ -244,10 +260,8 @@ class SequenceGenerator:
             score_beam_beam = (scores.unsqueeze(2)+filtered_logits.reshape(batch_size, beam_width, -1))
             vocab_size = score_beam_beam.size(2)
             score_beam_beam = score_beam_beam.reshape(batch_size, -1) # (batch_size, beam_width*vocab_size)
-            print(score_beam_beam.shape)
             token_scores, next_idxs = torch.topk(score_beam_beam, beam_width, dim=-1)
             
-            print(token_scores, next_idxs)
             x_pre_idx = next_idxs // vocab_size
             next_tokens = next_idxs % vocab_size
 
