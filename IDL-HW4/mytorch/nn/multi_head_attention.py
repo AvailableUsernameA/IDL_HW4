@@ -77,7 +77,7 @@ class MultiHeadAttention:
         mask = None
         if key_padding_mask is not None:
 
-            mask = key_padding_mask[:, :, np.newaxis, np.newaxis]
+            mask = key_padding_mask[:, :, np.newaxis]
         if attn_mask is not None:
             if mask is not None:
                 mask = (mask>0)|(attn_mask[np.newaxis, np.newaxis, :, :]>0)
