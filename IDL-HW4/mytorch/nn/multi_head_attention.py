@@ -103,34 +103,34 @@ class MultiHeadAttention:
 
         # Backpropagate through the output projection   
         # (N, L, embed_dim) -> (N, L, embed_dim) 
-        d_attn_output = NotImplementedError
+        d_attn_output = self.out_proj.backward(d_output)
 
         # Split the gradients into multiple heads
         # (N, L, embed_dim) -> (N, num_heads, L, embed_dim // num_heads)
-        d_attn_outputs = NotImplementedError
+        d_attn_outputs = self._split_heads(d_attn_output)
 
         # Backpropagate through the attention mechanism
         # (N, num_heads, L, embed_dim // num_heads) -> (N, num_heads, L, embed_dim // num_heads)
-        d_q, d_k, d_v = NotImplementedError
+        d_q, d_k, d_v = self.attention.backward(d_attn_outputs)
 
         # Merge the gradients
         # (N, num_heads, L, embed_dim // num_heads) -> (N, L, embed_dim)    
-        d_q = NotImplementedError
+        d_q = self._concat_heads(d_q)
         # (N, num_heads, S, embed_dim // num_heads) -> (N, S, embed_dim)
-        d_k = NotImplementedError
+        d_k = self._concat_heads(d_k)
         # (N, num_heads, S, embed_dim // num_heads) -> (N, S, embed_dim)
-        d_v = NotImplementedError
+        d_v = self._concat_heads(d_v)
 
         # Backpropagate through the input projections   
         # (N, L, embed_dim) -> (N, L, embed_dim)
-        d_q = NotImplementedError
+        d_q = self.q_proj.backward(d_q)
         # (N, S, embed_dim) -> (N, S, embed_dim)
-        d_k = NotImplementedError
+        d_k = self.k_proj.backward(d_k)
         # (N, S, embed_dim) -> (N, S, embed_dim)
-        d_v = NotImplementedError
+        d_v = self.v_proj.backward(d_v)
 
         # Return gradients d_q, d_k, d_v
-        raise NotImplementedError
+        return d_q, d_k, d_v
 
     def _merge_masks(self, key_padding_mask, attn_mask):
         """
