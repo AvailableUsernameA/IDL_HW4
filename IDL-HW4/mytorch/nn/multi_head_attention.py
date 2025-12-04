@@ -74,9 +74,7 @@ class MultiHeadAttention:
 
         # Merge the masks
         # (N, S) + (L, S) -> (N, H, L, S)
-        print(self.num_heads, key_padding_mask.shape, attn_mask.shape)
         mask = self._merge_masks(key_padding_mask, attn_mask)
-        print(mask.shape)
 
         # Apply the attention mechanism
         # (N, num_heads, L, embed_dim // num_heads)
