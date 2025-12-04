@@ -168,7 +168,7 @@ class LMDataset(Dataset):
         shifted_transcripts, golden_transcripts = zip(*batch)
         
         # TODO: Record the sequence lengths before padding
-        lengths = shifted_transcripts.size(0) # (B)
+        lengths = len(shifted_transcripts) # (B)
 
         # TODO: Pad sequences (use torch.nn.utils.rnn.pad_sequence and pad with pad_token)
         padded_shifted = torch.nn.utils.rnn.pad_sequence(shifted_transcripts, batch_first=True, padding_value=self.pad_token) # (B, T)
