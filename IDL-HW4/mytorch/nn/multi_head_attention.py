@@ -66,23 +66,17 @@ class MultiHeadAttention:
 
         # Split the query, key, and value into multiple heads
         # (N, L, embed_dim) -> (N, num_heads, L, embed_dim // num_heads)
-        q = q.reshape(self.N, self.num_heads, self.L, self.embed_dim//self.num_heads)
+        q = self._split_heads(q)
         # (N, S, embed_dim) -> (N, num_heads, S, embed_dim // num_heads)
-        k = k.reshape(self.N, self.num_heads, self.S, self.embed_dim//self.num_heads)
+        k = self._split_heads(k)
         # (N, S, embed_dim) -> (N, num_heads, S, embed_dim // num_heads)
-        v = v.reshape(self.N, self.num_heads, self.S, self.embed_dim//self.num_heads)
+        v = self._split_heads(v)
 
         # Merge the masks
         # (N, S) + (L, S) -> (N, H, L, S)
-        mask = None
-        if key_padding_mask is not None:
-
-            mask = key_padding_mask[:, :, np.newaxis, np.newaxis]
-        if attn_mask is not None:
-            if mask is not None:
-                mask = (mask>0)|(attn_mask[np.newaxis, np.newaxis, :, :]>0)
-            else:
-                mask = attn_mask[np.newaxis, np.newaxis, :, :]
+        print(self.num_heads, key_padding_mask.shape, attn_mask.shape)
+        mask = self._merge_masks(key_padding_mask, attn_mask)
+        print(mask.shape)
 
         # Apply the attention mechanism
         # (N, num_heads, L, embed_dim // num_heads)
@@ -90,7 +84,7 @@ class MultiHeadAttention:
 
         # Merge the attention outputs   
         # (N, num_heads, L, embed_dim // num_heads) -> (N, L, embed_dim)
-        attn_output = attn_output.transpose(0, 2, 1, 3).reshape(self.N, self.L, -1)
+        attn_output = self._concat_heads(attn_output)
 
         # Project the attention outputs
         # (N, L, embed_dim) -> (N, L, embed_dim)
@@ -148,16 +142,27 @@ class MultiHeadAttention:
         # TODO: Implement merge masks
 
         # Expand key_padding_mask to (N, 1, 1, S) and broadcast to (N, H, L, S)
-        key_mask = NotImplementedError
+        key_mask = None
+        if key_padding_mask is not None:
+            key_mask = key_padding_mask[:, np.newaxis, np.newaxis, :]\
+                .broadcast_to((self.N, self.num_heads, self.L, self.S))
         
         # Expand attn_mask to (1, 1, L, S) and broadcast to (N, H, L, S)
-        attention_mask = NotImplementedError
+        attention_mask = None
+        if attn_mask is not None:
+            attention_mask = attn_mask[np.newaxis, np.newaxis, :, :]\
+                .broadcast_to((self.N, self.num_heads, self.L, self.S))
         
         # Combine masks using logical_or - if either mask is True, we want to mask that position
-        combined_mask = NotImplementedError
-        
+        combined_mask = None
+        if key_mask is not None:
+            combined_mask = key_mask
+            if attention_mask is not None:
+                combined_mask = key_mask|attn_mask
+        elif attention_mask is not None:
+            combined_mask = attention_mask
         # Return combined mask
-        raise NotImplementedError
+        return combined_mask
 
     def _split_heads(self, x):
         """
@@ -169,13 +174,13 @@ class MultiHeadAttention:
         # TODO: Implement split heads
 
         # Reshape: (N, L, embed_dim) -> (N, L, num_heads, embed_dim // num_heads)
-        x = NotImplementedError
+        x = x.reshape(self.N, self.L, self.num_heads, self.embed_dim//self.num_heads)
         
         # Transpose: (N, L, num_heads, embed_dim // num_heads) -> (N, num_heads, L, embed_dim // num_heads)
-        x = NotImplementedError
+        x = x.transpose(0, 2, 1, 3)
         
         # Return x
-        raise NotImplementedError
+        return x
 
     def _concat_heads(self, x):
         """
@@ -186,10 +191,10 @@ class MultiHeadAttention:
         """
         # TODO: Implement concat heads
         # Transpose: (N, num_heads, L, embed_dim // num_heads) -> (N, L, num_heads, embed_dim // num_heads)
-        x = NotImplementedError
+        x = x.transpose(0, 2, 1, 3)
         
         # Reshape: (N, L, num_heads, embed_dim // num_heads) -> (N, L, embed_dim)
-        x = NotImplementedError
+        x = x.reshape(self.N, self.L, self.embed_dim)
         
         # Return x
-        raise NotImplementedError
+        return x
