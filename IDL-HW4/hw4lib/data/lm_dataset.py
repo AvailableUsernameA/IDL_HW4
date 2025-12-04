@@ -86,7 +86,7 @@ class LMDataset(Dataset):
             # TODO: Load the transcript
             # Note: Use np.load to load the numpy array and convert to list and then join to string 
             transcript = np.load(os.path.join(self.text_dir, file))
-            transcript = ''.join(list(transcript))
+            transcript = ''.join(transcript.tolist())
             
             # Track character count (before tokenization)
             # DO NOT MODIFY
