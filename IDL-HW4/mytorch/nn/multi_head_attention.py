@@ -84,7 +84,7 @@ class MultiHeadAttention:
 
         # Merge the attention outputs   
         # (N, num_heads, L, embed_dim // num_heads) -> (N, L, embed_dim)
-        attn_output = self._concat_heads(attn_output)
+        attn_output = self._concat_heads(attn_outputs)
 
         # Project the attention outputs
         # (N, L, embed_dim) -> (N, L, embed_dim)
