@@ -85,7 +85,7 @@ class LMDataset(Dataset):
         for file in tqdm(self.text_files):
             # TODO: Load the transcript
             # Note: Use np.load to load the numpy array and convert to list and then join to string 
-            transcript = np.load(os.path.join(self.text_dir, self.text_files[file]))
+            transcript = np.load(os.path.join(self.text_dir, file))
             
             # Track character count (before tokenization)
             # DO NOT MODIFY
