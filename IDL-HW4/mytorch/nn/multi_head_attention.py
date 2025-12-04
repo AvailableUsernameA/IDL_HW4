@@ -144,14 +144,14 @@ class MultiHeadAttention:
         # Expand key_padding_mask to (N, 1, 1, S) and broadcast to (N, H, L, S)
         key_mask = None
         if key_padding_mask is not None:
-            key_mask = key_padding_mask[:, np.newaxis, np.newaxis, :]\
-                .broadcast_to((self.N, self.num_heads, self.L, self.S))
+            key_mask = np.broadcast_to(key_padding_mask[:, np.newaxis, np.newaxis, :],\
+                (self.N, self.num_heads, self.L, self.S))
         
         # Expand attn_mask to (1, 1, L, S) and broadcast to (N, H, L, S)
         attention_mask = None
         if attn_mask is not None:
-            attention_mask = attn_mask[np.newaxis, np.newaxis, :, :]\
-                .broadcast_to((self.N, self.num_heads, self.L, self.S))
+            attention_mask = np.broadcast_to(attn_mask[np.newaxis, np.newaxis, :, :],\
+                (self.N, self.num_heads, self.L, self.S))
         
         # Combine masks using logical_or - if either mask is True, we want to mask that position
         combined_mask = None
